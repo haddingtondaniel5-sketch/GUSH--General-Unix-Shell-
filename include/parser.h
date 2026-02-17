@@ -12,5 +12,6 @@
 #include "gush.h"
 
 void gush_parse_line(char *line, t_program *cmd);
+int check_4_operators(t_program *cmd);
 
 #endif

@@ -59,3 +59,47 @@ void gush_parse_line(char *line, t_program *cmd) { // Thankyou Google Gemini
     cmd->args[arg_idx] = NULL;
     cmd->argc = arg_idx;
 }
+
+int check_4_operators(t_program *cmd)
+{
+    int i = 0;
+    int op_count = 0;
+    cmd->command_starts[0] = 0;
+
+    while (cmd->args[i])
+    {
+        if (strcmp(cmd->args[i], "&&") == 0 ||
+            strcmp(cmd->args[i], "||") == 0 ||
+            strcmp(cmd->args[i], ";") == 0 ||
+            strcmp(cmd->args[i], ">") == 0 ||
+            strcmp(cmd->args[i], ">>") == 0 || 
+            strcmp(cmd->args[i], "|") == 0      )
+            {
+                if (op_count >= cmd->args_size - 1)
+                {
+                    cmd->args_size += GUSH_TOK_BUFSIZE;
+                    char **tmp_ops = realloc(cmd->operator_list, sizeof(char *) * cmd->args_size);
+                    char *tmp_starts = realloc(cmd->command_starts, sizeof(int) * cmd->args_size);
+
+                    if (!tmp_ops || !tmp_starts)
+                        ERROR_MEM(cmd, "reallacation failed in check_4_operators");
+                    
+                    cmd->operator_list = tmp_ops;
+                    cmd->command_starts = tmp_starts;
+                }  //Since you now have command_starts, you can actually calculate how many arguments each sub-command has by subtracting: segment_argc = command_starts[j+1] - command_starts[j] - 1;
+                cmd->operator_list[op_count] = cmd->args[i];
+                cmd->args[i] = NULL; 
+                cmd->command_starts[op_count + 1] = i + 1;
+                op_count += 1;
+
+
+            }
+        i += 1;
+    }
+    cmd->operator_list[op_count] = NULL;
+
+    if (op_count)
+        return 1;
+    else
+        return 0;
+}

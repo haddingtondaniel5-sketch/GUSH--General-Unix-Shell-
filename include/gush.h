@@ -19,7 +19,9 @@
 #include <pwd.h>
 
 # include "../libdanc/include/libdanc.h"
-#include "parser.h"
+# include "parser.h"
+# include "executor.h"
+# include "builtins.h"
 
 #define GUSH_TOK_BUFSIZE 64
 #define GUSH_TOK_DELIM " \t\r\n\a"
@@ -57,21 +59,26 @@
 #define HNAME_SIZE 64
 
 typedef struct s_program {
-    char **args;    // Array of strings
+    char **args;    // Array of strings representing argument tokens in command/s
+    char **operator_list;
+    int *command_starts;
     char current_working_dir[CWD_SIZE];
     char hostname[HNAME_SIZE];
     char *username;
     char *prompt;
-    int argc;       // Number of arguments
-    int args_size;
+    int argc;       // Number of arguments in command/s
+    int args_size;  // the size of the token boat (starts at 64(char *))
+
+    char **envv_working_copy;
 
 } t_program;
 
 
-char *gush_read_line(const char *prompt, t_program *cmd);
 
-int gush_execute(t_program *cmd);
-void gush_free_command(t_program *cmd);
+
+char *gush_read_line(const char *prompt, t_program *cmd);
+void initialise_struct(t_program *cmd);
+void set_prompt(t_program *cmd);
 
 
 #endif

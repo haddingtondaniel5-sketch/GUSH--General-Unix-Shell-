@@ -12,4 +12,8 @@
 #include "gush.h"
 
 
+int gush_execute(t_program *cmd);
+int perform_complex_execution(t_program *cmd);
+int perform_simple_execution(t_program *cmd);
+
 #endif

@@ -12,6 +12,8 @@
 
 void cleanup(t_program *c)
 {
+    safe_free(c->command_starts);
+    safe_free(c->operator_list);
     safe_free(c->args);
     safe_free(c);
 }
@@ -24,7 +26,6 @@ char *gush_read_line(const char *prompt, t_program *cmd) {
         safe_free(line);
         error_exit("Shell Exited\n", 0, cmd,  cleanup);
     }
-
     return line;
 }
 
@@ -33,6 +34,11 @@ void initialise_struct(t_program *cmd)
     cmd->argc = 0;
     cmd->args_size = GUSH_TOK_BUFSIZE;
     cmd->args = malloc(sizeof(char *) * cmd->args_size);
+    cmd->command_starts = malloc(sizeof(int) * cmd->args_size);
+    for (int i = 0; i < cmd->args_size; i += 1)
+        cmd->command_starts[i] = -1;
+    cmd->operator_list = malloc(sizeof(char *) * cmd->args_size);
+    cmd->operator_list[0] = NULL;
     cmd->args[0] = NULL;
     cmd->prompt = NULL;
 }
@@ -51,12 +57,15 @@ void set_prompt(t_program *cmd)
     cmd->prompt = strjoin_e(13, B_PURPLE , cmd->username, B_WHITE, "@", B_PURPLE, cmd->hostname, WHITE, ":", B_CYAN, cmd->current_working_dir, GREEN, symbol, " ");
 }
 
-int main(void)
+int main(int argc, char **argv, char **envv)
 {
+    (void)argc;
+    (void)argv;
 
     t_program *cmd = malloc(sizeof(t_program));
     if (!cmd)
         ERROR_MEM(cmd, "struct in shell could not be allocated");
+    cmd->envv_working_copy = tabdup(envv);
     initialise_struct(cmd);
 
     while (1) {
@@ -71,7 +80,6 @@ int main(void)
             
             gush_parse_line(line, cmd);
             print_list_2d(cmd->args);
-        
         }
         free(line);
     }

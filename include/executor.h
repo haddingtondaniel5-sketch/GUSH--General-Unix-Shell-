@@ -12,4 +12,6 @@
 #include "gush.h"
 
 
+int gush_execute(t_program *cmd);
+
 #endif
