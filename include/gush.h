@@ -17,11 +17,14 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <pwd.h>
+#include <libgen.h>
+#include <sys/wait.h>
 
 # include "../libdanc/include/libdanc.h"
 # include "parser.h"
 # include "executor.h"
 # include "builtins.h"
+# include "env.h"
 
 #define GUSH_TOK_BUFSIZE 64
 #define GUSH_TOK_DELIM " \t\r\n\a"
@@ -68,7 +71,7 @@ typedef struct s_program {
     char *prompt;
     int argc;       // Number of arguments in command/s
     int args_size;  // the size of the token boat (starts at 64(char *))
-
+    int status;     // error code after execution of program or builtin
     char **envv_working_copy;
 
 } t_program;

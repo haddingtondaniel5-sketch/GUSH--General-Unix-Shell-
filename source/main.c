@@ -15,6 +15,7 @@ void cleanup(t_program *c)
     safe_free(c->command_starts);
     safe_free(c->operator_list);
     safe_free(c->args);
+    safe_free(c->prompt);
     safe_free(c);
 }
 
@@ -24,7 +25,7 @@ char *gush_read_line(const char *prompt, t_program *cmd) {
     if (line == NULL)
     {
         safe_free(line);
-        error_exit("Shell Exited\n", 0, cmd,  cleanup);
+        error_exit("Gush exited with CTRL-D", 0, cmd,  cleanup);
     }
     return line;
 }
@@ -41,6 +42,7 @@ void initialise_struct(t_program *cmd)
     cmd->operator_list[0] = NULL;
     cmd->args[0] = NULL;
     cmd->prompt = NULL;
+    cmd->status = 0;
 }
 
 void set_prompt(t_program *cmd)
@@ -54,7 +56,9 @@ void set_prompt(t_program *cmd)
     cmd->username = getpwuid(uid)->pw_name;
     gethostname(cmd->hostname, HNAME_SIZE);
     getcwd(cmd->current_working_dir, CWD_SIZE);
-    cmd->prompt = strjoin_e(13, B_PURPLE , cmd->username, B_WHITE, "@", B_PURPLE, cmd->hostname, WHITE, ":", B_CYAN, cmd->current_working_dir, GREEN, symbol, " ");
+    char *status_str = itoa(cmd->status);
+    cmd->prompt = strjoin_e(19, B_PURPLE , cmd->username, B_WHITE, "@", B_PURPLE, cmd->hostname, WHITE, ":", B_CYAN, basename(cmd->current_working_dir), B_WHITE, "[", B_RED, status_str, B_WHITE, "]", GREEN, symbol, " ");
+    safe_free(status_str);
 }
 
 int main(int argc, char **argv, char **envv)
@@ -79,7 +83,8 @@ int main(int argc, char **argv, char **envv)
             add_history(line);     
             
             gush_parse_line(line, cmd);
-            print_list_2d(cmd->args);
+            cmd->status = gush_execute(cmd);
+            
         }
         free(line);
     }

@@ -11,9 +11,11 @@
 #define BUILTINS_H
 #include "gush.h"
 
+void gush_exit(char **args, t_program *cmd);
+int gush_cd(char **args);
+int gush_unset(char **args);
+int gush_export(char **args);
+int gush_env(char **envv);
 
-int gush_execute(t_program *cmd);
-int perform_complex_execution(t_program *cmd);
-int perform_simple_execution(t_program *cmd);
 
 #endif

@@ -236,6 +236,12 @@
 		 * returns pointers to 2d character array split by the delimiter c */
 		char	**split(char const *s, char c);
 
+		/** from strcmp_e.c
+		 * takes a list of strings and checks if any of them meet the criteria of matching with the check variable
+		 * Uses the variadic macro to automatically stick NULL on the end of the function call*/
+		#define strcmp_e(check, ...) strcmp__e_internal(check, __VA_ARGS__, NULL)
+		int strcmp__e_internal(char *check, ...);
+
 		/** from str_reverse.c
 		 * reverses string inputted */
 		char	*str_reverse(char *in);
